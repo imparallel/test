@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Space Miner Clicker</title>
+    <style>
+        :root {
+            --bg-color: #0b0d17;
+            --panel-bg: rgba(20, 24, 40, 0.8);
+            --accent-color: #00f2ff;
+            --accent-glow: 0 0 10px #00f2ff;
+            --text-color: #e0e6ed;
+            --item-bg: rgba(255, 255, 255, 0.05);
+            --item-hover: rgba(255, 255, 255, 0.1);
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow: hidden;
+            display: flex;
+            height: 100vh;
+            user-select: none;
+        }
+
+        /* [왼쪽: 채굴 구역] */
+        #mining-zone {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            background: radial-gradient(circle at center, #1a233a 0%, #0b0d17 70%);
+        }
+
+        #asteroid {
+            width: 250px;
+            height: 250px;
+            background: linear-gradient(135deg, #4b5d73, #2a3544);
+            border-radius: 50%;
+            position: relative;
+            cursor: pointer;
+            box-shadow: 0 0 30px rgba(0, 242, 255, 0.1), inset -20px -20px 50px rgba(0, 0, 0, 0.5);
+            transition: transform 0.1s;
+            z-index: 10;
+        }
+
+        #asteroid:active {
+            transform: scale(0.95);
+        }
+
+        #asteroid::before {
+            content: '';
+            position: absolute;
+            top: 20%;
+            left: 20%;
+            width: 40px;
+            height: 40px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 50%;
+        }
+
+        #asteroid::after {
+            content: '';
+            position: absolute;
+            bottom: 30%;
+            right: 20%;
+            width: 60px;
+            height: 60px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 50%;
+        }
+
+        /* [클릭 효과 파티클] */
+        .click-effect {
+            position: absolute;
+            color: var(--accent-color);
+            font-weight: bold;
+            font-size: 1.5rem;
+            pointer-events: none;
+            animation: floatUp 0.8s ease-out forwards;
+        }
+
+        @keyframes floatUp {
+            0% {
+                transform: translateY(0) scale(1);
+                opacity: 1;
+            }
+
+            100% {
+                transform: translateY(-50px) scale(1.2);
+                opacity: 0;
+            }
+        }
+
+        /* [상단: 점수판] */
+        #scoreboard {
+            position: absolute;
+            top: 40px;
+            text-align: center;
+            z-index: 20;
+        }
+
+        #score-display {
+            font-size: 3rem;
+            font-weight: 800;
+            text-shadow: 0 0 20px rgba(0, 242, 255, 0.5);
+            margin: 0;
+        }
+
+        #sps-display {
+            font-size: 1rem;
+            color: #8faec5;
+            margin-top: 5px;
+        }
+
+        /* [오른쪽: 상점] */
+        #shop-zone {
+            width: 350px;
+            background: var(--panel-bg);
+            border-left: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            overflow-y: auto;
+        }
+
+        .shop-header {
+            font-size: 1.5rem;
+            font-weight: bold;
+            border-bottom: 2px solid var(--accent-color);
+            padding-bottom: 10px;
+            margin-bottom: 10px;
+            text-shadow: var(--accent-glow);
+        }
+
+        .upgrade-item {
+            background: var(--item-bg);
+            padding: 15px;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .upgrade-item:hover {
+            background: var(--item-hover);
+            transform: translateX(-5px);
+            border-color: var(--accent-color);
+        }
+
+        .upgrade-item.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            pointer-events: none;
+            filter: grayscale(1);
+        }
+
+        .item-info h4 {
+            margin: 0 0 5px 0;
+            font-size: 1.1rem;
+        }
+
+        .item-info p {
+            margin: 0;
+            font-size: 0.8rem;
+            color: #8faec5;
+        }
+
+        .item-cost {
+            font-weight: bold;
+            color: var(--accent-color);
+        }
+
+        .item-count {
+            background: #333;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 0.8rem;
+        }
+
+        /* 반응형 */
+        @media (max-width: 768px) {
+            body {
+                flex-direction: column;
+            }
+
+            #asteroid {
+                width: 180px;
+                height: 180px;
+            }
+
+            #shop-zone {
+                width: auto;
+                height: 40%;
+                border-left: none;
+                border-top: 1px solid rgba(255, 255, 255, 0.1);
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- 왼쪽 채굴 구역 -->
+    <div id="mining-zone">
+        <div id="scoreboard">
+            <div id="score-display">0</div>
+            <div id="sps-display">0 Minerals / sec</div>
+        </div>
+        <div id="asteroid"></div>
+    </div>
+
+    <!-- 오른쪽 상점 구역 -->
+    <div id="shop-zone">
+        <div class="shop-header">UPGRADES</div>
+
+        <!-- 아이템 목록이 JS로 생성됨 -->
+        <div id="shop-list"></div>
+    </div>
+
+    <script>
+        // [게임 데이터]
+        const game = {
+            minerals: 0,
+            clickPower: 1,
+            autoMinerals: 0, // 초당 자동 획득량
+        };
+
+        // [상점 아이템 데이터]
+        const items = [
+            { id: 'pickaxe', name: '레이저 곡괭이', type: 'click', baseCost: 15, basePower: 1, count: 0, desc: '클릭당 채굴량 +1' },
+            { id: 'drone', name: '채굴 드론', type: 'auto', baseCost: 100, basePower: 5, count: 0, desc: '초당 자동 채굴 +5' },
+            { id: 'drill', name: '플라즈마 드릴', type: 'click', baseCost: 500, basePower: 10, count: 0, desc: '클릭당 채굴량 +10' },
+            { id: 'bot', name: '채굴 로봇 MK-1', type: 'auto', baseCost: 1000, basePower: 25, count: 0, desc: '초당 자동 채굴 +25' },
+            { id: 'station', name: '채굴 정거장', type: 'auto', baseCost: 10000, basePower: 150, count: 0, desc: '초당 자동 채굴 +150' },
+        ];
+
+        // [엘리먼트 참조]
+        const elScore = document.getElementById('score-display');
+        const elSps = document.getElementById('sps-display');
+        const asteroid = document.getElementById('asteroid');
+        const shopList = document.getElementById('shop-list');
+
+        // [초기화]
+        function init() {
+            renderShop();
+            updateDisplay();
+            requestAnimationFrame(gameLoop);
+        }
+
+        // [화면 갱신]
+        function updateDisplay() {
+            elScore.innerText = Math.floor(game.minerals).toLocaleString();
+            elSps.innerText = `${game.autoMinerals.toLocaleString()} Minerals / sec`;
+
+            // 상점 버튼 활성/비활성 업데이트
+            items.forEach(item => {
+                const btn = document.getElementById(`btn-${item.id}`);
+                const currentCost = Math.floor(item.baseCost * Math.pow(1.15, item.count));
+                if (game.minerals >= currentCost) {
+                    btn.classList.remove('disabled');
+                } else {
+                    btn.classList.add('disabled');
+                }
+                // 가격 표시 업데이트
+                const costEl = btn.querySelector('.item-cost');
+                costEl.innerText = `${currentCost.toLocaleString()} M`;
+            });
+        }
+
+        // [클릭 이벤트]
+        asteroid.addEventListener('mousedown', (e) => {
+            mine(e.clientX, e.clientY);
+        });
+
+        // 모바일 터치 대응
+        asteroid.addEventListener('touchstart', (e) => {
+            e.preventDefault(); // 더블탭 줌 방지
+            const touch = e.changedTouches[0];
+            mine(touch.clientX, touch.clientY);
+        });
+
+        function mine(x, y) {
+            game.minerals += game.clickPower;
+
+            // 클릭 효과 (파티클)
+            createParticle(x, y, `+${game.clickPower}`);
+
+            // 행성 흔들림 효과
+            asteroid.style.transform = `scale(0.95) rotate(${Math.random() * 4 - 2}deg)`;
+            setTimeout(() => {
+                asteroid.style.transform = 'scale(1) rotate(0deg)';
+            }, 100);
+
+            updateDisplay();
+        }
+
+        // [파티클 생성]
+        function createParticle(x, y, text) {
+            const el = document.createElement('div');
+            el.classList.add('click-effect');
+            el.innerText = text;
+            el.style.left = `${x}px`;
+            el.style.top = `${y}px`;
+            // 약간의 랜덤 위치 보정
+            const randomX = (Math.random() - 0.5) * 40;
+            el.style.transform = `translate(${randomX}px, 0)`;
+
+            document.body.appendChild(el);
+            setTimeout(() => el.remove(), 800);
+        }
+
+        // [상점 렌더링]
+        function renderShop() {
+            shopList.innerHTML = '';
+            items.forEach(item => {
+                const currentCost = Math.floor(item.baseCost * Math.pow(1.15, item.count));
+
+                const div = document.createElement('div');
+                div.id = `btn-${item.id}`;
+                div.className = 'upgrade-item disabled'; // 처음엔 비활성
+                div.onclick = () => buyItem(item);
+
+                div.innerHTML = `
+                    <div class="item-info">
+                        <h4>${item.name} <span class="item-count">${item.count}</span></h4>
+                        <p>${item.desc}</p>
+                    </div>
+                    <div class="item-cost">${currentCost.toLocaleString()} M</div>
+                `;
+                shopList.appendChild(div);
+            });
+        }
+
+        // [아이템 구매]
+        function buyItem(item) {
+            const cost = Math.floor(item.baseCost * Math.pow(1.15, item.count));
+            if (game.minerals >= cost) {
+                game.minerals -= cost;
+                item.count++;
+
+                if (item.type === 'click') {
+                    game.clickPower += item.basePower;
+                } else if (item.type === 'auto') {
+                    game.autoMinerals += item.basePower;
+                }
+
+                updateDisplay();
+
+                // 구매 후 카운트 업데이트를 위해 다시 렌더링 하는 대신, 
+                // 간단히 updateDisplay에서 처리하거나 여기서 DOM만 살짝 수정
+                const btn = document.getElementById(`btn-${item.id}`);
+                btn.querySelector('.item-count').innerText = item.count;
+            }
+        }
+
+        // [게임 루프 - 자동 채굴]
+        let lastTime = Date.now();
+        function gameLoop() {
+            const now = Date.now();
+            const dt = (now - lastTime) / 1000; // 델타 타임 (초 단위)
+            lastTime = now;
+
+            if (game.autoMinerals > 0) {
+                game.minerals += game.autoMinerals * dt;
+                updateDisplay();
+            }
+
+            requestAnimationFrame(gameLoop);
+        }
+
+        init();
+    </script>
+</body>
+
+</html>
