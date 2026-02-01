@@ -1,0 +1,301 @@
+:root {
+    --bg-color: #0b0d17;
+    --panel-bg: rgba(20, 24, 40, 0.8);
+    --accent-color: #00f2ff;
+    --accent-glow: 0 0 10px #00f2ff;
+    --text-color: #e0e6ed;
+    --item-bg: rgba(255, 255, 255, 0.05);
+    --item-hover: rgba(255, 255, 255, 0.1);
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    overflow: hidden;
+    display: flex;
+    height: 100vh;
+    user-select: none;
+}
+
+/* [왼쪽: 채굴 구역] */
+#mining-zone {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    background: radial-gradient(circle at center, #1a233a 0%, #0b0d17 70%);
+}
+
+/* asteroid-container is needed for the HTML structure I kept */
+#asteroid-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+}
+
+#asteroid {
+    width: 250px;
+    height: 250px;
+    background: linear-gradient(135deg, #4b5d73, #2a3544);
+    border-radius: 50%;
+    position: relative;
+    cursor: pointer;
+    box-shadow: 0 0 30px rgba(0, 242, 255, 0.1), inset -20px -20px 50px rgba(0, 0, 0, 0.5);
+    transition: transform 0.1s;
+    z-index: 10;
+}
+
+#asteroid:active {
+    transform: scale(0.95);
+}
+
+#asteroid::before {
+    content: '';
+    position: absolute;
+    top: 20%;
+    left: 20%;
+    width: 40px;
+    height: 40px;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 50%;
+}
+
+#asteroid::after {
+    content: '';
+    position: absolute;
+    bottom: 30%;
+    right: 20%;
+    width: 60px;
+    height: 60px;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 50%;
+}
+
+/* [클릭 효과 파티클] */
+.click-effect {
+    position: absolute;
+    color: var(--accent-color);
+    font-weight: bold;
+    font-size: 1.5rem;
+    pointer-events: none;
+    z-index: 100;
+    /* 행성(z-index:10)보다 높게 설정 */
+    animation: floatUp 0.8s ease-out forwards;
+}
+
+@keyframes floatUp {
+    0% {
+        transform: translateY(0) scale(1);
+        opacity: 1;
+    }
+
+    100% {
+        transform: translateY(-50px) scale(1.2);
+        opacity: 0;
+    }
+}
+
+/* [상단: 점수판] */
+#scoreboard {
+    position: absolute;
+    top: 40px;
+    text-align: center;
+    z-index: 20;
+}
+
+#score-display {
+    font-size: 3rem;
+    font-weight: 800;
+    text-shadow: 0 0 20px rgba(0, 242, 255, 0.5);
+    margin: 0;
+}
+
+#sps-display {
+    font-size: 1rem;
+    color: #8faec5;
+    margin-top: 5px;
+}
+
+/* [오른쪽: 상점] */
+#shop-zone {
+    width: 350px;
+    background: var(--panel-bg);
+    border-left: 1px solid rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    overflow-y: auto;
+}
+
+.shop-header {
+    font-size: 1.5rem;
+    font-weight: bold;
+    border-bottom: 2px solid var(--accent-color);
+    padding-bottom: 10px;
+    margin-bottom: 10px;
+    text-shadow: var(--accent-glow);
+}
+
+.upgrade-item {
+    background: var(--item-bg);
+    padding: 15px;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.upgrade-item:hover {
+    background: var(--item-hover);
+    transform: translateX(-5px);
+    border-color: var(--accent-color);
+}
+
+.upgrade-item.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    pointer-events: none;
+    filter: grayscale(1);
+}
+
+.item-info h4 {
+    margin: 0 0 5px 0;
+    font-size: 1.1rem;
+}
+
+.item-info p {
+    margin: 0;
+    font-size: 0.8rem;
+    color: #8faec5;
+}
+
+.item-cost {
+    font-weight: bold;
+    color: var(--accent-color);
+}
+
+.item-count {
+    background: #333;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 0.8rem;
+}
+
+/* 반응형 */
+@media (max-width: 768px) {
+    body {
+        flex-direction: column;
+    }
+
+    #asteroid {
+        width: 180px;
+        height: 180px;
+    }
+
+    #shop-zone {
+        width: auto;
+        height: 40%;
+        border-left: none;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+}
+
+/* [버전 표시] */
+#version-display {
+    /* 모바일 우선 (Mobile First): 스크롤 맨 아래에 자연스럽게 배치 */
+    text-align: center;
+    margin-top: 20px;
+    padding-bottom: 10px;
+    font-size: 0.8rem;
+    color: #555;
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+#version-display:hover {
+    color: var(--accent-color);
+    text-decoration: underline;
+}
+
+/* PC 화면: 화면 우측 하단에 고정 */
+@media (min-width: 769px) {
+    #version-display {
+        position: fixed;
+        bottom: 15px;
+        right: 30px;
+        /* 우측 하단 이동 */
+        margin: 0;
+        padding: 0;
+        z-index: 100;
+        text-align: right;
+    }
+}
+
+/* [패치노트 모달] */
+#modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    z-index: 200;
+    justify-content: center;
+    align-items: center;
+    backdrop-filter: blur(5px);
+}
+
+#modal-content {
+    background: #1a1e2e;
+    width: 300px;
+    max-height: 80%;
+    padding: 20px;
+    border-radius: 12px;
+    border: 1px solid var(--accent-color);
+    box-shadow: 0 0 20px rgba(0, 242, 255, 0.2);
+    color: #d0d0d0;
+    overflow-y: auto;
+}
+
+#modal-content h2 {
+    margin-top: 0;
+    color: var(--accent-color);
+    border-bottom: 1px solid #333;
+    padding-bottom: 10px;
+}
+
+.patch-item {
+    margin-bottom: 15px;
+}
+
+.patch-ver {
+    font-weight: bold;
+    color: #fff;
+    margin-bottom: 4px;
+}
+
+.patch-date {
+    font-size: 0.75rem;
+    color: #777;
+    margin-bottom: 5px;
+}
+
+.patch-desc li {
+    font-size: 0.85rem;
+    line-height: 1.4;
+    list-style-type: square;
+    margin-left: -20px;
+    color: #aaa;
+}

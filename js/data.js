@@ -1,0 +1,47 @@
+// [상점 아이템 데이터]
+const items = [
+    { id: 'pickaxe', name: '레이저 곡괭이', type: 'click', baseCost: 15, basePower: 1, count: 0, desc: '클릭당 채굴량 +1' },
+    { id: 'drone', name: '채굴 드론', type: 'auto', baseCost: 100, basePower: 5, count: 0, desc: '초당 자동 채굴 +5' },
+    { id: 'drill', name: '플라즈마 드릴', type: 'click', baseCost: 500, basePower: 10, count: 0, desc: '클릭당 채굴량 +10' },
+    { id: 'bot', name: '채굴 로봇 MK-1', type: 'auto', baseCost: 1000, basePower: 25, count: 0, desc: '초당 자동 채굴 +25' },
+    { id: 'station', name: '채굴 정거장', type: 'auto', baseCost: 10000, basePower: 150, count: 0, desc: '초당 자동 채굴 +150' },
+];
+
+// [패치노트 데이터]
+const patchNotes = [
+    {
+        version: "v0.1.0.3",
+        date: "2026-02-01",
+        changes: [
+            "[System] 프로젝트 구조 리팩토링 (HTML/CSS/JS 분리)",
+            "[Fix] PC 화면에서 레이아웃이 모바일처럼 깨지는 버그 수정",
+            "[UI] 반응형(Flex) 레이아웃 최적화"
+        ]
+    },
+    {
+        version: "v0.1.0.2",
+        date: "2026-02-01",
+        changes: [
+            "[UI] 모바일 버전 표시 위치 개선 (목록 하단 이동)",
+            "[UI] PC 버전 표시 위치 변경 (좌측 하단 → 우측 하단)",
+            "[Fix] 아이템 목록과 버전 정보가 겹치는 현상 해결"
+        ]
+    },
+    {
+        version: "v0.1.0.1",
+        date: "2026-02-01",
+        changes: [
+            "[Fix] 클릭 효과(숫자)가 행성 뒤에 가려지는 문제 수정",
+            "[System] 패치노트 시스템 추가"
+        ]
+    },
+    {
+        version: "v0.1.0.0",
+        date: "2026-02-01",
+        changes: [
+            "[New] Space Miner Clicker 게임 출시!",
+            "[New] 저장/불러오기 기능 추가",
+            "[New] 초기화(Reset) 기능 추가"
+        ]
+    }
+];
