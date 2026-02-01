@@ -14,14 +14,29 @@ const asteroid = document.getElementById('asteroid');
 const shopList = document.getElementById('shop-list');
 
 // [이니셜라이저]
+let saveInterval;
+let gameLoopId; // [New] 게임 루프 ID
 function init() {
-    loadGame(); // 저장된 데이터 불러오기
+    loadGame();
     renderShop();
     updateDisplay();
-    requestAnimationFrame(gameLoop);
+    gameLoopId = requestAnimationFrame(gameLoop); // ID 저장
+    saveInterval = setInterval(saveGame, 1000);
+}
 
-    // 1초마다 자동 저장
-    setInterval(saveGame, 1000);
+// [게임 루프 - 자동 채굴]
+let lastTime = Date.now();
+function gameLoop() {
+    const now = Date.now();
+    const dt = (now - lastTime) / 1000;
+    lastTime = now;
+
+    if (game.autoMinerals > 0) {
+        game.minerals += (game.autoMinerals * game.multiplier) * dt;
+        updateDisplay();
+    }
+
+    gameLoopId = requestAnimationFrame(gameLoop); // ID 업데이트
 }
 
 // [데이터 저장]
@@ -206,40 +221,54 @@ function upgradeCore() {
             if (success) {
                 game.coreLevel++;
                 game.multiplier += 0.2; // 20% 증가
-                alert(`[SUCCESS] 과부하 성공! 코어 레벨이 상승했습니다!\nLv.${game.coreLevel} (채굴 효율 +${Math.round((game.multiplier - 1) * 100)}%)`);
-                createParticle(window.innerWidth / 2, window.innerHeight / 2, "CORE LEVEL UP!");
+                // alert(`[SUCCESS] 과부하 성공! 코어 레벨이 상승했습니다!\nLv.${game.coreLevel} (채굴 효율 +${Math.round((game.multiplier - 1) * 100)}%)`); // alert 제거 (연출로 대체)
+                showLevelUpEffect(game.coreLevel); // 화려한 연출로 변경
             } else {
-                // 실패 시 행성 파괴
+                // [실패] 행성 파괴 로직 개선
+
+                // 1. 자동 저장 및 게임 루프 중단
+                clearInterval(saveInterval);
+                cancelAnimationFrame(gameLoopId);
+
+                // 2. 데이터 삭제
                 localStorage.removeItem('spaceMinerSave');
-                document.body.innerHTML = `
-                    <div style='display:flex;justify-content:center;align-items:center;height:100vh;flex-direction:column;color:white;background:black;text-align:center;'>
-                        <h1 style='color:red;font-size:3rem;'>GAME OVER</h1>
-                        <p>코어 과부하로 행성이 붕괴되었습니다.</p>
-                        <p style='color:#666;'>미네랄과 업그레이드가 모두 소멸했습니다.</p>
-                        <button onclick='location.reload()' style='margin-top:20px;padding:10px 20px;background:white;color:black;border:none;border-radius:5px;cursor:pointer;font-weight:bold;'>새로운 행성 찾기</button>
+
+                // 3. 왼쪽 화면(Mining Zone)만 게임 오버 처리
+                const miningZone = document.getElementById('mining-zone');
+                miningZone.innerHTML = `
+                    <div style='display:flex;justify-content:center;align-items:center;height:100%;flex-direction:column;text-align:center;'>
+                        <h1 style='color:#ff4444; font-size:3rem; margin-bottom: 20px; text-shadow: 0 0 20px rgba(255,0,0,0.5);'>GAME OVER</h1>
+                        <p style='font-size: 1.2rem; margin-bottom: 10px;'>과부하 실패로 행성이 붕괴되었습니다.</p>
+                        <p style='color:#888; margin-bottom: 30px; font-size:0.9rem;'>모든 미네랄과 데이터가 소멸했습니다.</p>
+                        <button onclick='location.reload()' style='padding:15px 30px; background:#ff4444; color:white; border:none; border-radius:8px; cursor:pointer; font-weight:bold; font-size: 1rem; box-shadow: 0 4px 15px rgba(255, 68, 68, 0.4);'>🚀 새로운 행성 찾기</button>
                     </div>
                 `;
             }
             updateDisplay();
-            saveGame();
+            // 성공 시에만 저장 (실패 시에는 이미 지웠고 저장하면 안됨)
+            if (success) saveGame();
         }, 1500); // 1.5초 두근두근 연출
     }
 }
 
-// [게임 루프 - 자동 채굴]
-let lastTime = Date.now();
-function gameLoop() {
-    const now = Date.now();
-    const dt = (now - lastTime) / 1000; // 델타 타임 (초 단위)
-    lastTime = now;
+// [레벨업 연출 함수]
+function showLevelUpEffect(level) {
+    const miningZone = document.getElementById('mining-zone');
+    const el = document.createElement('div');
+    el.className = 'levelup-overlay';
+    el.style.position = 'absolute'; // mining-zone 기준 절대 좌표
+    el.innerHTML = `CORE LEVEL UP!<br><span style="font-size:2rem; color:#fff;">Lv.${level}</span>`;
+    miningZone.appendChild(el); // body가 아니라 mining-zone에 추가
 
-    if (game.autoMinerals > 0) {
-        game.minerals += (game.autoMinerals * game.multiplier) * dt; // 배율 적용
-        updateDisplay();
-    }
+    // 번쩍이는 배경 효과 (선택 사항) - mining-zone만
+    miningZone.style.transition = "background-color 0.1s";
+    miningZone.style.backgroundColor = "#2a3544"; // 잠시 밝아짐
+    setTimeout(() => miningZone.style.backgroundColor = "", 200);
 
-    requestAnimationFrame(gameLoop);
+    setTimeout(() => el.remove(), 2000); // 2초 후 제거
 }
+
+
 
 // [모달 제어]
 function openModal() {

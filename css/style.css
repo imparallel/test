@@ -28,6 +28,11 @@ body {
     align-items: center;
     justify-content: center;
     position: relative;
+    /* 중요: 오버레이 위치 기준점 */
+    height: 100vh;
+    /* 높이를 화면에 꽉 채움 */
+    overflow: hidden;
+    /* 내부 요소 튀어나감 방지 */
     background: radial-gradient(circle at center, #1a233a 0%, #0b0d17 70%);
 }
 
@@ -183,6 +188,50 @@ body {
 .item-cost {
     font-weight: bold;
     color: var(--accent-color);
+}
+
+/* [레벨업 연출] */
+.levelup-overlay {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    font-size: 4rem;
+    font-weight: 900;
+    color: #fff;
+    text-shadow: 0 0 50px #00f2ff, 0 0 20px #00f2ff, 0 0 10px #ffffff;
+    z-index: 9999;
+    pointer-events: none;
+    opacity: 0;
+    white-space: nowrap;
+    animation: levelUpPop 2s ease-out forwards;
+}
+
+@keyframes levelUpPop {
+    0% {
+        transform: translate(-50%, -50%) scale(0.5);
+        opacity: 0;
+    }
+
+    15% {
+        transform: translate(-50%, -50%) scale(1.1);
+        opacity: 1;
+    }
+
+    25% {
+        transform: translate(-50%, -50%) scale(1);
+    }
+
+    80% {
+        transform: translate(-50%, -50%) scale(1);
+        opacity: 1;
+    }
+
+    100% {
+        transform: translate(-50%, -50%) scale(1.2);
+        opacity: 0;
+    }
 }
 
 .item-count {
