@@ -10,12 +10,20 @@ const items = [
 // [패치노트 데이터]
 const patchNotes = [
     {
+        version: "v0.1.1.0",
+        date: "2026-02-01",
+        changes: [
+            "[New] 행성 코어 과부하(Risk Upgrade) 시스템 추가",
+            "[System] 코어 레벨 도입 (레벨당 채굴 효율 +20%)",
+            "[Effect] 과부하 성공/실패 연출 추가"
+        ]
+    },
+    {
         version: "v0.1.0.3",
         date: "2026-02-01",
         changes: [
-            "[System] 프로젝트 구조 리팩토링 (HTML/CSS/JS 분리)",
-            "[Fix] PC 화면에서 레이아웃이 모바일처럼 깨지는 버그 수정",
-            "[UI] 반응형(Flex) 레이아웃 최적화"
+            "[System] 프로젝트 구조 리팩토링 및 롤백",
+            "[Fix] 디자인 레이아웃 및 아이템 표기 오류 수정"
         ]
     },
     {
