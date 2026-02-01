@@ -228,6 +228,13 @@
 
         <!-- 아이템 목록이 JS로 생성됨 -->
         <div id="shop-list"></div>
+
+        <!-- 초기화 버튼 추가 -->
+        <div style="margin-top: 20px; text-align: center;">
+            <button onclick="resetGame()"
+                style="background:none; border:1px solid #ff4444; color:#ff4444; padding:5px 10px; border-radius:5px; cursor:pointer;">데이터
+                초기화</button>
+        </div>
     </div>
 
     <script>
@@ -255,9 +262,50 @@
 
         // [초기화]
         function init() {
+            loadGame(); // 저장된 데이터 불러오기
             renderShop();
             updateDisplay();
             requestAnimationFrame(gameLoop);
+
+            // 1초마다 자동 저장
+            setInterval(saveGame, 1000);
+        }
+
+        // [데이터 저장]
+        function saveGame() {
+            const saveData = {
+                minerals: game.minerals,
+                clickPower: game.clickPower,
+                autoMinerals: game.autoMinerals,
+                itemCounts: items.map(item => item.count)
+            };
+            localStorage.setItem('spaceMinerSave', JSON.stringify(saveData));
+        }
+
+        // [데이터 로드]
+        function loadGame() {
+            const saveString = localStorage.getItem('spaceMinerSave');
+            if (saveString) {
+                const saveData = JSON.parse(saveString);
+                game.minerals = saveData.minerals || 0;
+                game.clickPower = saveData.clickPower || 1;
+                game.autoMinerals = saveData.autoMinerals || 0;
+
+                // 아이템 개수 복구
+                if (saveData.itemCounts && saveData.itemCounts.length === items.length) {
+                    items.forEach((item, index) => {
+                        item.count = saveData.itemCounts[index];
+                    });
+                }
+            }
+        }
+
+        // [데이터 초기화]
+        function resetGame() {
+            if (confirm("정말로 모든 데이터를 삭제하고 처음부터 시작하시겠습니까?")) {
+                localStorage.removeItem('spaceMinerSave');
+                location.reload();
+            }
         }
 
         // [화면 갱신]
