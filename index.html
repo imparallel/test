@@ -84,6 +84,8 @@
             font-weight: bold;
             font-size: 1.5rem;
             pointer-events: none;
+            z-index: 100;
+            /* 행성(z-index:10)보다 높게 설정 */
             animation: floatUp 0.8s ease-out forwards;
         }
 
@@ -208,10 +210,111 @@
                 border-top: 1px solid rgba(255, 255, 255, 0.1);
             }
         }
+
+        /* [버전 표시] */
+        #version-display {
+            /* 모바일 우선 (Mobile First): 스크롤 맨 아래에 자연스럽게 배치 */
+            text-align: center;
+            margin-top: 20px;
+            padding-bottom: 10px;
+            font-size: 0.8rem;
+            color: #555;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+        #version-display:hover {
+            color: var(--accent-color);
+            text-decoration: underline;
+        }
+
+        /* PC 화면: 화면 우측 하단에 고정 */
+        @media (min-width: 769px) {
+            #version-display {
+                position: fixed;
+                bottom: 15px;
+                right: 30px;
+                /* 우측 하단 이동 */
+                margin: 0;
+                padding: 0;
+                z-index: 100;
+                text-align: right;
+            }
+        }
+
+        /* [패치노트 모달] */
+        #modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 200;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(5px);
+        }
+
+        #modal-content {
+            background: #1a1e2e;
+            width: 300px;
+            max-height: 80%;
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid var(--accent-color);
+            box-shadow: 0 0 20px rgba(0, 242, 255, 0.2);
+            color: #d0d0d0;
+            overflow-y: auto;
+        }
+
+        #modal-content h2 {
+            margin-top: 0;
+            color: var(--accent-color);
+            border-bottom: 1px solid #333;
+            padding-bottom: 10px;
+        }
+
+        .patch-item {
+            margin-bottom: 15px;
+        }
+
+        .patch-ver {
+            font-weight: bold;
+            color: #fff;
+            margin-bottom: 4px;
+        }
+
+        .patch-date {
+            font-size: 0.75rem;
+            color: #777;
+            margin-bottom: 5px;
+        }
+
+        .patch-desc li {
+            font-size: 0.85rem;
+            line-height: 1.4;
+            list-style-type: square;
+            margin-left: -20px;
+            color: #aaa;
+        }
     </style>
 </head>
 
 <body>
+
+    <!-- 패치노트 모달 -->
+    <div id="modal-overlay" onclick="closeModal(event)">
+        <div id="modal-content">
+            <h2>PATCH NOTES</h2>
+            <div id="patch-list"></div>
+            <div style="text-align: right; margin-top: 15px;">
+                <button onclick="document.getElementById('modal-overlay').style.display='none'"
+                    style="background:var(--accent-color); border:none; padding:5px 15px; border-radius:4px; cursor:pointer; font-weight:bold;">Close</button>
+            </div>
+        </div>
+    </div>
 
     <!-- 왼쪽 채굴 구역 -->
     <div id="mining-zone">
@@ -235,6 +338,9 @@
                 style="background:none; border:1px solid #ff4444; color:#ff4444; padding:5px 10px; border-radius:5px; cursor:pointer;">데이터
                 초기화</button>
         </div>
+
+        <!-- 버전 표시 (HTML 위치 이동) -->
+        <div id="version-display" onclick="openModal()">v0.1.0.2</div>
     </div>
 
     <script>
@@ -430,6 +536,66 @@
         }
 
         init();
+
+        // [패치노트 데이터]
+        const patchNotes = [
+            {
+                version: "v0.1.0.2",
+                date: "2026-02-01",
+                changes: [
+                    "[UI] 모바일 버전 표시 위치 개선 (목록 하단 이동)",
+                    "[UI] PC 버전 표시 위치 변경 (좌측 하단 → 우측 하단)",
+                    "[Fix] 아이템 목록과 버전 정보가 겹치는 현상 해결"
+                ]
+            },
+            {
+                version: "v0.1.0.1",
+                date: "2026-02-01",
+                changes: [
+                    "[Fix] 클릭 효과(숫자)가 행성 뒤에 가려지는 문제 수정",
+                    "[System] 패치노트 시스템 추가"
+                ]
+            },
+            {
+                version: "v0.1.0.0",
+                date: "2026-02-01",
+                changes: [
+                    "[New] Space Miner Clicker 게임 출시!",
+                    "[New] 저장/불러오기 기능 추가",
+                    "[New] 초기화(Reset) 기능 추가"
+                ]
+            }
+        ];
+
+        // [모달 제어]
+        function openModal() {
+            const list = document.getElementById('patch-list');
+            list.innerHTML = '';
+
+            patchNotes.forEach(note => {
+                const item = document.createElement('div');
+                item.className = 'patch-item';
+
+                let changeHtml = '<ul class="patch-desc">';
+                note.changes.forEach(c => changeHtml += `<li>${c}</li>`);
+                changeHtml += '</ul>';
+
+                item.innerHTML = `
+                    <div class="patch-ver">${note.version}</div>
+                    <div class="patch-date">${note.date}</div>
+                    ${changeHtml}
+                `;
+                list.appendChild(item);
+            });
+
+            document.getElementById('modal-overlay').style.display = 'flex';
+        }
+
+        function closeModal(e) {
+            if (e.target.id === 'modal-overlay') {
+                document.getElementById('modal-overlay').style.display = 'none';
+            }
+        }
     </script>
 </body>
 
