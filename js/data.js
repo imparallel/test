@@ -1,3 +1,20 @@
+// [게임 설정 및 밸런스]
+const GAME_CONFIG = {
+    CORE: {
+        BASE_COST: 1000,           // 코어 진화 기본 비용
+        COST_MULTIPLIER: 2.0,      // 진화 비용 증가 배율 (x2.0)
+        BASE_CAPACITY: 3000,       // 기본 미네랄 저장 용량
+        CAPACITY_MULTIPLIER: 2.0,  // 저장 용량 증가 배율 (x2.0)
+        REWARD_MULTIPLIER: 0.2,    // 진화 성공 시 채굴 배율 증가량 (+20%)
+        BASE_CHANCE: 95,           // 진화 기본 성공 확률 (Lv.1 -> Lv.2)
+        CHANCE_DECREASE: 5,       // 레벨 당 확률 감소폭 (-5%)
+        MIN_CHANCE: 5             // 최소 성공 확률 (5%)
+    },
+    ITEM: {
+        COST_MULTIPLIER: 1.15      // 아이템 가격 증가 배율 (x1.15)
+    }
+};
+
 // [상점 아이템 데이터]
 const items = [
     { id: 'pickaxe', name: '레이저 곡괭이', type: 'click', baseCost: 15, basePower: 1, count: 0, desc: '클릭당 채굴량 +1' },
@@ -9,6 +26,17 @@ const items = [
 
 // [패치노트 데이터]
 const patchNotes = [
+    {
+        version: "v0.1.2.0",
+        date: "2026-02-02",
+        changes: [
+            "[System] '코어 과부하' ➔ '코어 진화(Evolution)' 리브랜딩",
+            "[System] 저장 용량 제한 시스템 도입 (코어 레벨에 비례)",
+            "[Visual] 행성 랜덤 색상 생성 (진화 실패 시 변경)",
+            "[Balance] 진화 비용 및 용량 밸런스 전면 재조정",
+            "[Dev] 밸런스 설정 중앙화 (GAME_CONFIG)"
+        ]
+    },
     {
         version: "v0.1.1.0",
         date: "2026-02-01",
