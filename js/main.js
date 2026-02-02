@@ -106,7 +106,7 @@ function init() {
     // [UI] 버전 정보 자동 동기화 (data.js 연동)
     if (typeof patchNotes !== 'undefined' && patchNotes.length > 0) {
         const latestVersion = patchNotes[0].version;
-        // 우측 상단 클릭 버튼 업데이트
+        // 하단 버전 버튼 업데이트
         const elVersion = document.getElementById('version-display');
         if (elVersion) elVersion.innerText = latestVersion;
     }
