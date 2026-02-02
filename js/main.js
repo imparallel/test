@@ -102,6 +102,15 @@ function init() {
     setPlanetAppearance(); // 행성 외형 적용
     renderShop();
     updateDisplay();
+
+    // [UI] 버전 정보 자동 동기화 (data.js 연동)
+    if (typeof patchNotes !== 'undefined' && patchNotes.length > 0) {
+        const latestVersion = patchNotes[0].version;
+        // 우측 상단 클릭 버튼 업데이트
+        const elVersion = document.getElementById('version-display');
+        if (elVersion) elVersion.innerText = latestVersion;
+    }
+
     gameLoopId = requestAnimationFrame(gameLoop); // ID 저장
     saveInterval = setInterval(saveGame, 1000);
 }
