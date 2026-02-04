@@ -331,7 +331,7 @@ function upgradeCore() {
     }
 
     // 메시지 수정: 고정 비용이 아닌 '현재 자산의 50%'임을 명시
-    if (confirm(`[COSMIC EVENT] 코어 진화를 시도하시겠습니까?\n\n현재 레벨: Lv.${game.coreLevel}\n성공 확률: ${chance}%\n비용: ${cost.toLocaleString()} M (Min: ${minCost.toLocaleString()})\n\n⚠ 실패 시 행성이 붕괴되며, 남은 자산의 25%만 구조됩니다.`)) {
+    if (confirm(`[COSMIC EVENT] 코어 진화를 시도하시겠습니까?\n\n현재 레벨: Lv.${game.coreLevel}\n성공 확률: ${chance}%\n비용: ${cost.toLocaleString()} M (Min: ${minCost.toLocaleString()})\n\n⚠ 실패 시 행성이 붕괴되며, 남은 자산의 50%만 구조됩니다.`)) {
 
         // 비용 지불 (금고 우선)
         spendResources(cost);
