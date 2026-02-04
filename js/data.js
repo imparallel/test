@@ -1,5 +1,5 @@
 // [게임 설정 및 밸런스]
-const GAME_CONFIG = {
+var GAME_CONFIG = {
     CORE: {
         BASE_COST: 1000,           // 코어 진화 기본 비용
         COST_MULTIPLIER: 2.0,      // 진화 비용 증가 배율 (x2.0)
@@ -8,15 +8,32 @@ const GAME_CONFIG = {
         REWARD_MULTIPLIER: 0.2,    // 진화 성공 시 채굴 배율 증가량 (+20%)
         BASE_CHANCE: 95,           // 진화 기본 성공 확률 (Lv.1 -> Lv.2)
         CHANCE_DECREASE: 5,       // 레벨 당 확률 감소폭 (-5%)
-        MIN_CHANCE: 5             // 최소 성공 확률 (5%)
+        MIN_CHANCE: 5,             // 최소 성공 확률 (5%)
+        FAIL_INHERITANCE_RATE: 0.5, // [Balance] 남은 자산의 50% 구조 (총 자산의 25% 생존 - Hardcore)
+        EVOLUTION_COST_RATE: 0.5   // [New] 진화 비용 계수 (보유 자산의 50%)
     },
     ITEM: {
         COST_MULTIPLIER: 1.15      // 아이템 가격 증가 배율 (x1.15)
+    },
+    SYSTEM: {
+        AUTO_SAVE_INTERVAL: 1000   // 자동 저장 주기 (ms)
     }
 };
 
+// [행성 색상 팔레트]
+var PLANET_COLORS = [
+    ['#ef5350', '#b71c1c'], // Red Mars
+    ['#42a5f5', '#1565c0'], // Blue Neptune
+    ['#66bb6a', '#2e7d32'], // Green Terra
+    ['#ffd54f', '#ff8f00'], // Yellow Venus
+    ['#ab47bc', '#6a1b9a'], // Purple Void
+    ['#8d6e63', '#4e342e'], // Brown Rocky
+    ['#bdbdbd', '#424242'], // Grey Moon
+    ['#26c6da', '#00838f'], // Cyan Ice
+];
+
 // [상점 아이템 데이터]
-const items = [
+var items = [
     { id: 'pickaxe', name: '레이저 곡괭이', type: 'click', baseCost: 15, basePower: 1, count: 0, desc: '클릭당 채굴량 +1' },
     { id: 'drone', name: '채굴 드론', type: 'auto', baseCost: 100, basePower: 5, count: 0, desc: '초당 자동 채굴 +5' },
     { id: 'drill', name: '플라즈마 드릴', type: 'click', baseCost: 500, basePower: 10, count: 0, desc: '클릭당 채굴량 +10' },
@@ -26,6 +43,17 @@ const items = [
 
 // [패치노트 데이터]
 const patchNotes = [
+    {
+        version: "v0.1.3.2",
+        date: "2026-02-04",
+        changes: [
+            "[System] 하드코어 경제 밸런스 적용 (Risky Wallet)",
+            "[Balance] 코어 진화 비용: 보유 자산의 50% (최소 비용 보장)",
+            "[Balance] 진화 실패 시: 남은 자산의 50%만 구조 (총자산의 25% 생존)",
+            "[UI] 상점 구매 조건 완화 (용량 초과해도 자산 충분하면 구매 가능)",
+            "[Fix] 상점 아이템 붉은색 표시 오류 수정"
+        ]
+    },
     {
         version: "v0.1.2.0",
         date: "2026-02-02",
